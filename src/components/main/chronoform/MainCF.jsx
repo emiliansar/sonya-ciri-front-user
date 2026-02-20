@@ -1,5 +1,5 @@
 import style from '@/components/main/layout/Main.module.scss'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { useUserContext } from '../../../context/user-context'
 import { useQuery } from '@tanstack/react-query'
@@ -10,11 +10,21 @@ export default function MainCF() {
     const {
         user,
         chronoform,
+        cfIsLoading,
+        cfIsFetching,
+        cfIsError,
+        cfError,
+        cfIsSuccess,
         cfRefetch,
     } = useUserContext()
 
+    const [isPageLoading, setIsPageLoading] = useState(true)
+
     useEffect(() => {
-        cfRefetch()
+        setIsPageLoading(true)
+        cfRefetch().finally(() => {
+            setIsPageLoading(false)
+        })
     }, [])
 
     useEffect(() => {
@@ -23,7 +33,37 @@ export default function MainCF() {
         }
     }, [chronoform])
 
-    return (
+    console.log('cfIsLoading:', cfIsLoading)
+    console.log('cfIsSuccess:', cfIsSuccess)
+    console.log('chronoform:', chronoform)
+
+    if (cfIsLoading) {
+        return (
+            <div>Loading...</div>
+        )
+    }
+
+    // const hasData = chronoform && Object.keys(chronoform).length > 0
+
+    if (cfIsFetching) {
+        return (
+            <div>Fetching...</div>
+        )
+    }
+
+    if (isPageLoading) {
+        return (
+            <div>PageLoading...</div>
+        )
+    }
+
+    if (cfIsError) {
+        return (
+            <div>Error: {cfError.message}</div>
+        )
+    }
+
+    return cfIsSuccess && !cfIsLoading && (
         <>
             <div
                 className='max-w-[1440] w-full px-[10] my-0 mx-a'

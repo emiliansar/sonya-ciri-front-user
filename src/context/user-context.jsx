@@ -26,6 +26,7 @@ export function UserContextProvider({ children }) {
 
     const {
         isLoading: cfIsLoading,
+        isFetching: cfIsFetching,
         data: cfData,
         isError: cfIsError,
         error: cfError,
@@ -102,6 +103,13 @@ export function UserContextProvider({ children }) {
         userId,
         user,
         chronoform,
+        cfIsLoading,
+        cfIsFetching,
+        cfIsError,
+        cfError,
+        cfIsSuccess,
+        cfRefetch,
+        assignCF,
         chronotype,
         access_token,
         refresh_token,
@@ -109,8 +117,6 @@ export function UserContextProvider({ children }) {
         enterAccount,
         outAccount,
         changeAccessToken,
-        assignCF,
-        cfRefetch
     }
 
     return (
