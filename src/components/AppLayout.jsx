@@ -5,6 +5,7 @@ import AuthSignin from "@/components/auth/components/AuthSignin";
 import MainLayout from "@/components/main/layout/MainLayout";
 import MainUser from "@/components/main/user/MainUser";
 import MainCF from "./main/chronoform/MainCF";
+import Test from "./main/test/Test";
 
 export default function AppLayout() {
     return (
@@ -14,6 +15,7 @@ export default function AppLayout() {
                     <Route path="/" element={<MainLayout />}>
                         <Route index element={<MainUser />} />
                         <Route path='user' element={<MainUser />} />
+                        {/* <Route path='chronoform' element={<Test />} /> */}
                         <Route path='chronoform' element={<MainCF />} />
                     </Route>
                     <Route path="/auth" element={<AuthLayout />}>

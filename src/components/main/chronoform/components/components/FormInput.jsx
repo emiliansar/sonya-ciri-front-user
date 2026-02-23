@@ -7,24 +7,37 @@ export default function FormInput({
     placeholder,
     field,
     onChange,
-    desc
+    desc,
+    props
 }) {
+    const handleChange = (e) => {
+        if (onChange) {
+            onChange(e)
+        } else {
+            field.onChange(e.target.value)
+        }
+    }
+
     return (
-        <FormItem>
-            <FormLabel>{ label }</FormLabel>
-            <FormControl>
+        <FormItem className="form-item">
+            <FormLabel className="form-label">{label}</FormLabel>
+            <FormControl className="text-[16px] font-regular">
                 <Input
                     type={type}
                     placeholder={placeholder}
                     {...field}
-                    onChange={onChange}
+                    onChange={handleChange}
                     value={field.value ?? ""}
+                    {...props}
+                    className="w-full text-[16px] font-regular"
                 />
             </FormControl>
-            <FormDescription>
-                { desc }
-            </FormDescription>
-            <FormMessage />
+            {desc && (
+                <FormDescription className="form-desc-message">
+                    {desc}
+                </FormDescription>
+            )}
+            <FormMessage className="form-desc-message" />
         </FormItem>
     )
 }

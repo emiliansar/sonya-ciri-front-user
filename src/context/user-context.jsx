@@ -53,9 +53,13 @@ export function UserContextProvider({ children }) {
         refetch: chronotypeRefetch,
     } = useQuery({
         queryKey: ['get chronotype ', userId],
-        queryFn: () => chronotypeService.getChronotype(userId),
-        enabled: false,
-        retry: 0
+        queryFn: () => chronotypeService.getChronotype(
+            access_token,
+            refresh_token,
+            changeAccessToken
+        ),
+        enabled: isAuth,
+        retry: 5
     });
 
     const enterAccount = (user) => {

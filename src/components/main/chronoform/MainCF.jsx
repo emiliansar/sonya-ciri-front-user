@@ -43,8 +43,6 @@ export default function MainCF() {
         )
     }
 
-    // const hasData = chronoform && Object.keys(chronoform).length > 0
-
     if (cfIsFetching) {
         return (
             <div>Fetching...</div>
@@ -57,21 +55,19 @@ export default function MainCF() {
         )
     }
 
-    if (cfIsError) {
-        return (
-            <div>Error: {cfError.message}</div>
-        )
-    }
+    // if (cfIsError) {
+    //     return (
+    //         <div>Error: {cfError.message}</div>
+    //     )
+    // }
 
-    return cfIsSuccess && !cfIsLoading && (
-        <>
-            <div
-                className='max-w-[1440] w-full px-[10] my-0 mx-a'
-            >
-                <Chronoform
-                    defaultValues={chronoform}
-                />
-            </div>
-        </>
+    return !cfIsLoading && (
+        <div
+            className='max-w-[700px] w-full px-[10] my-0 mx-a'
+        >
+            <Chronoform
+                defaultValues={chronoform}
+            />
+        </div>
     )
 }

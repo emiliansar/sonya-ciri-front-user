@@ -27,10 +27,10 @@ export default function HourSelector({ value = [], onChange, label }) {
     }, [value])
 
     return (
-        <FormItem>
-            <FormLabel>{label}</FormLabel>
-            <FormControl>
-                <div className="flex flex-row gap-5">
+        <FormItem className="form-item flex flex-col gap-1.5 items-start">
+            <FormLabel className="font-semibold text-[20px]">{label}</FormLabel>
+            <FormControl className="w-full">
+                <div className="w-full flex flex-row gap-5 flex-wrap items-center gap-1.5">
                     {[...Array(24)]
                     .map((_, i) => i)
                     .map((h, i) => (
@@ -39,8 +39,8 @@ export default function HourSelector({ value = [], onChange, label }) {
                             type="button"
                             variant={value.includes(h) ? "default":  "outlined"}
                             className={cn(
-                                "h-10",
-                                isHourSelected(h) && "bg-red-500 text-white"
+                                "h-12 w-15 border-2 border-gray-500 text-white",
+                                isHourSelected(h) && "bg-[#8A2BE2] border-[#8A2BE2] text-white"
                             )}
                             onClick={() => toggleHour(h)}
                         >
@@ -50,10 +50,10 @@ export default function HourSelector({ value = [], onChange, label }) {
                     }
                 </div>
             </FormControl>
-            <FormDescription>
+            <FormDescription className="form-desc-message">
                 Выберите часы
             </FormDescription>
-            <FormMessage />
+            <FormMessage className="form-desc-message" />
         </FormItem>
     )
 }

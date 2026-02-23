@@ -8,8 +8,9 @@ import UserButtonSave from './components/UserButtonSave'
 import { userService } from '@/services/user.service'
 import UserError from './components/UserError'
 import UserButtonDelete from './components/UserButtonDelete'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import UserLinkChronoform from './components/UserLinkChronoform'
+import UserChronotype from './components/UserChronotype'
 
 export default function MainUser() {
     const firstNameRef = useRef(null)
@@ -109,6 +110,8 @@ export default function MainUser() {
         <div className={style.UserForm}>
             <div className={style.UserForm__Container}>
                 <p className={style.UserForm__Title}>Я</p>
+
+                <UserChronotype />
 
                 <UserFirstName
                     defaultValue={user.first_name}

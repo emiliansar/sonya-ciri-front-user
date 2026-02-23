@@ -1,10 +1,43 @@
+/* *,
+*::after,
+*::before {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+} */
+
+html {
+  line-height: 1.6;
+  max-width: 100vw;
+  width: 100%;
+  max-height: 100vh;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: #0d0d0d;
+}
+
+body {
+  line-height: 1.5;
+  color: #fff;
+  background-color: #0d0d0d;
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
+/* @import "shadcn/tailwind.css"; */
 
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
+@theme {
+    --font-inter: 'inter', sans-serif;
+
+    --font-weight-bold: 700;
+    --font-weight-semibold: 600;
+    --font-weight-medium: 500;
+    --font-weight-regular: 400;
+
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
@@ -78,6 +111,11 @@
     --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
     --sidebar-border: oklch(0.929 0.013 255.508);
     --sidebar-ring: oklch(0.704 0.04 256.788);
+
+    --font-weight-bold: 700;
+    --font-weight-semibold: 600;
+    --font-weight-medium: 500;
+    --font-weight-regular: 400;
 }
 
 .dark {
@@ -114,6 +152,34 @@
     --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+@font-face {
+    font-family: 'inter';
+    src: url('/assets/fonts/Inter_18pt-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'inter';
+    src: url('/assets/fonts/Inter_18pt-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'inter';
+    src: url('/assets/fonts/Inter_18pt-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'inter';
+    src: url('/assets/fonts/Inter_18pt-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -121,4 +187,16 @@
   body {
     @apply bg-background text-foreground;
     }
+}
+
+.form-item {
+    @apply max-w-[400px] w-full p-1 flex flex-col gap-3.5 items-start
+}
+
+.form-label {
+    @apply text-[20px] font-semibold
+}
+
+.form-desc-message {
+    @apply text-[16px] font-regular
 }

@@ -18,17 +18,30 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { importantMealType, sleepQuality } from '@/variables/cf.variables.js'
 import { Input } from "@/components/ui/input"
-import HourSelector from "@/components/main/chronoform/components/HourSelector"
+import HourSelector from "@/components/main/chronoform/components/components/HourSelector"
 import { defaultCfFormValues } from "@/schemas/cfFormSchema"
-import { useEffect } from "react"
-// import HourDropDown from "@/components/main/chronoform/components/HourDropDown"
+import { useEffect, useState } from "react"
+import FormInput from "@/components/main/chronoform/components/components/FormInput"
+import HourDropDown from "@/components/main/chronoform/components/components/HourDropDown"
+import FormRadioGroupInt from "@/components/main/chronoform/components/components/FormRadioGroupInt"
+import FormRadioGroupStr from "@/components/main/chronoform/components/components/FormRadioGroupStr"
+import FormResetButton from "@/components/main/chronoform/components/components/FormResetButton"
+import { useUserContext } from "@/context/user-context"
 
 export default function Chronoform({ defaultValues }) {
     const {
+        access_token,
+        refresh_token,
+        changeAccessToken
+    } = useUserContext()
+
+    const {
         form,
         onSubmit,
-        resetForm
-    } = useCfForm(defaultValues || defaultCfFormValues)
+        onDelete
+    } = useCfForm(
+        defaultValues
+    )
 
     useEffect(() => {
         const subscription = form.watch((value, { name, type }) => {
@@ -37,510 +50,283 @@ export default function Chronoform({ defaultValues }) {
         return () => subscription.unsubscribe()
     }, [form])
 
+    const submitForm = () => {
+        form.handleSubmit(onSubmit(
+            form.getValues(),
+            access_token,
+            refresh_token,
+            changeAccessToken
+        ))
+    }
+
+    const confirmDelete = () => {
+        console.log("confirmDelete вызван")
+        if (confirm("Вы уверены, что хотите удалить анкету?")) {
+            console.log("Confirm Delete прошёл условие")
+            onDelete(
+                access_token,
+                refresh_token,
+                changeAccessToken
+            )
+        }
+    }
+
     return (
-        <Form {...form}>
-            <form
-                className="flex flex-col gap-[10px]"
-                onSubmit={form.handleSubmit(onSubmit)}
-            >
-                <FormField
-                    control={form.control}
-                    name="age"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Ваш возраст</FormLabel>
-                            <FormControl>
-                                <Input
-                                    type="number"
-                                    placeholder="18"
-                                    {...field}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-
-                                        if (value === "") {
-                                            field.onChange(undefined)
-                                        } else {
-                                            field.onChange(parseInt(value, 10))
-                                        }
-                                    }}
-                                    value={field.value ?? ""}
-                                />
-                            </FormControl>
-                            <FormDescription>
-                                Введите ваш полный возраст
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="tag"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Тег анкеты</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Введите тег..."
-                                    {...field}
-                                />
-                            </FormControl>
-                            <FormDescription>
-                                Анкеты могут сортироваться по тегу
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="time_wake_up"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Время пробуждения</FormLabel>
-                            <Select
-                                onValueChange={(v) => field.onChange(v ? parseInt(v) : undefined)}
-                                value={field.value?.toString() ?? ""}
-                                // value={`${field.value?.toString().padStart(2, '0')}:00`}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Выберите время пробуждения" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {[...Array(24)].map((_, i) => (
-                                        <SelectItem
-                                            key={i}
-                                            value={i.toString()}
-                                        >
-                                            {i.toString().padStart(2, '0')}:00
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="time_to_bed"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Время отхода ко сну</FormLabel>
-                            <Select
-                                onValueChange={(v) => field.onChange(v ? parseInt(v) : undefined)}
-                                value={field.value?.toString() ?? ""}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Выберите время отхода ко сну" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    {[...Array(24)].map((_, i) => (
-                                        <SelectItem
-                                            key={i}
-                                            value={i.toString()}
-                                        >
-                                            {i.toString().padStart(2, '0')}:00
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="sleep_quality"
-                    render={({ field }) => {
-                        // const safeValue = field.value ?? 1;
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Качество сна</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v ? parseInt(v) : undefined)}
-                                        value={field.value?.toString() ?? ""}
-                                        className="flex"
-                                    >
-                                        {
-                                        [...Array(10)]
-                                        .map((_, i) => i + 1)
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormDescription>
-                                    Оцените качество своего сна
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
+        <div className="w-full my-[50px] mx-auto">
+            <Form {...form} className="w-full mx-auto mt-[50px]">
+                <form
+                    className="w-full flex flex-col gap-[20px] items-center"
+                    onSubmit={form.handleSubmit((values) =>
+                        onSubmit(
+                            values,
+                            access_token,
+                            refresh_token,
+                            changeAccessToken
                         )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="time_great"
-                    render={({ field }) => (
-                        <HourSelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            label="Часы наибольшей умственной активности, энергии и концентрации"
-                        />
                     )}
-                />
-                <FormField
-                    control={form.control}
-                    name="exam_time"
-                    render={({ field }) => (
-                        <HourSelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            label="Если бы вам нужно было сдать экзамен с максимальной концентрацией, какое время Вы бы выбрали?"
-                        />
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="exercise_time"
-                    render={({ field }) => (
-                        <HourSelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            label="Когда Вам комфортнее заниматься физическими нагрузками?"
-                        />
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="important_meal_type"
-                    render={({ field }) => {
-                        const safeValue = field.value ?? "Завтрак";
-                        const meal_types = ["Завтрак", "Обед", "Ужин"];
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Какой приём пищи для Вас самый важный по времени (не по меню)?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v.toString())}
-                                        value={safeValue.toString()}
-                                        className="flex flex-col"
-                                    >
-                                        {
-                                        meal_types
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                                className="flex gap-[5px]"
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormDescription>
-                                    Выберите самый важный для вас приём пищи
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="important_meal_time"
-                    render={({ field }) => (
-                        <HourSelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            label="Час приёма пищи"
-                        />
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="energy_decline"
-                    render={({ field }) => {
-                        const safeValue = field.value ?? "Нет";
-                        const decline_types = ["Нет", "Почти нет", "Умеренный", "Да, сильный"];
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Чувствуете ли Вы спад энергии после обеда?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v.toString())}
-                                        value={safeValue.toString()}
-                                        className="flex flex-col"
-                                    >
-                                        {
-                                        decline_types
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                                className="flex gap-[5px]"
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="early_rise"
-                    render={({ field }) => {
-                        const safeValue = field.value ?? "С трудом, но возможно";
-                        const rise_types = ["Да, без проблем", "Практически невозможно", "С трудом, но возможно"];
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Можете ли Вы легко перейти на ранний подъём, если это необходимо?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v.toString())}
-                                        value={safeValue.toString()}
-                                        className="flex flex-col"
-                                    >
-                                        {
-                                        rise_types
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                                className="flex gap-[5px]"
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="daytime_sleep"
-                    render={({ field }) => {
-                        const safeValue = field.value ?? "Часто ,если есть возможность";
-                        const daytime_sleep_types = ["Часто, если это возможно", "Да, иногда", "Никогда"];
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Спите ли Вы днём или вечером?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v.toString())}
-                                        value={safeValue.toString()}
-                                        className="flex flex-col"
-                                    >
-                                        {
-                                        daytime_sleep_types
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                                className="flex gap-[5px]"
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="state_morning"
-                    render={({ field }) => {
-                        const safeValue = field.value ?? "Усталым, с тяжёлыми веками";
-                        const types = ["Свежим и бодрым", "В тумане, но постепенно «раскачиваюсь»", "Усталым, с тяжёлыми веками"];
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Каким Вы просыпаетесь утром?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v.toString())}
-                                        value={safeValue.toString()}
-                                        className="flex flex-col"
-                                    >
-                                        {
-                                        types
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                                className="flex gap-[5px]"
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="daily_routine"
-                    render={({ field }) => {
-                        const safeValue = field.value ?? "Ранний подъём и ранний отход ко сну";
-                        const types = ["Ранний подъём и ранний отход ко сну", "Гибкий график с пиком активности днём", "Поздний подъём и работа/активность вечером"];
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Какой режим дня для Вас наиболее комфортен?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v.toString())}
-                                        value={safeValue.toString()}
-                                        className="flex flex-col"
-                                    >
-                                        {
-                                        types
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                                className="flex gap-[5px]"
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="when_tired"
-                    render={({ field }) => (
-                        <HourSelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            label="Когда чаще всего ощущается усталость?"
-                        />
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="me_desc"
-                    render={({ field }) => {
-                        const safeValue = field.value ?? "«Я люблю начинать день с чёткого плана»";
-                        const types = ["«Я люблю начинать день с чёткого плана»", "«Мне нужно время, чтобы войти в ритм»", "«Я предпочитаю работать, когда все спят»"];
-
-                        return (
-                            <FormItem>
-                                <FormLabel>Какое утверждение лучше описывает Вас?</FormLabel>
-                                <FormControl>
-                                    <RadioGroup
-                                        onValueChange={(v) => field.onChange(v.toString())}
-                                        value={safeValue.toString()}
-                                        className="flex flex-col"
-                                    >
-                                        {
-                                        types
-                                        .map((v, i) => (
-                                            <FormItem
-                                                key={i}
-                                                className="flex gap-[5px]"
-                                            >
-                                                <FormControl>
-                                                    <RadioGroupItem value={v.toString()} />
-                                                </FormControl>
-                                                <FormLabel>
-                                                    {v}
-                                                </FormLabel>
-                                            </FormItem>
-                                        ))}
-                                    </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )
-                    }}
-                />
-                <FormField
-                    control={form.control}
-                    name="great_day_desc"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Опишите Ваш идеальный день с точки зрения расписания</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Мой идеальный день:..."
-                                    {...field}
-                                    className="px-[5px]"
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <button
-                    type="submit"
-                    className="bg-transparent border-[#8A2BE2] border-solid border-2"
                 >
-                    Отправить
-                </button>
-            </form>
-        </Form>
+                    <div className="w-full flex items-center justify-center gap-[10px] mb-[20px]">
+                        <p className="text-[32px] font-bold">Анкета</p>
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name="age"
+                        render={({ field }) => (
+                            <FormInput
+                                label="Ваш возраст"
+                                type="number"
+                                placeholder="18"
+                                field={field}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+    
+                                    if (value === "") {
+                                        field.onChange(undefined)
+                                    } else {
+                                        field.onChange(parseInt(value, 10))
+                                    }
+                                }}
+                                desc="Введите ваш полный возраст"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="tag"
+                        render={({ field }) => (
+                            <FormInput
+                                label="Тег анкеты"
+                                type="text"
+                                placeholder="Введите тег..."
+                                field={field}
+                                onChange={(e) => { field.onChange(e.target.value) }}
+                                desc="Анкеты могут сортироваться по тегу"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="time_wake_up"
+                        render={({ field }) => (
+                            <HourDropDown
+                                field={field}
+                                label="Время пробуждения"
+                                placeholder="Выберите время пробуждения"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="time_to_bed"
+                        render={({ field }) => (
+                            <HourDropDown
+                                field={field}
+                                label="Время отхода ко сну"
+                                placeholder="Выберите время отхода ко сну"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="sleep_quality"
+                        render={({ field }) => {
+                            return (
+                                <FormRadioGroupInt
+                                    field={field}
+                                    label="Качество сна"
+                                    desc="Выберите качество сна"
+                                    array={[...Array(10)].map((_, i) => i + 1)}
+                                />
+                            )
+                        }}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="time_great"
+                        render={({ field }) => (
+                            <HourSelector
+                                value={field.value}
+                                onChange={field.onChange}
+                                label="Часы наибольшей умственной активности, энергии и концентрации"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="exam_time"
+                        render={({ field }) => (
+                            <HourSelector
+                                value={field.value}
+                                onChange={field.onChange}
+                                label="Если бы вам нужно было сдать экзамен с максимальной концентрацией, какое время Вы бы выбрали?"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="exercise_time"
+                        render={({ field }) => (
+                            <HourSelector
+                                value={field.value}
+                                onChange={field.onChange}
+                                label="Когда Вам комфортнее заниматься физическими нагрузками?"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="important_meal_type"
+                        render={({ field }) => (
+                            <FormRadioGroupStr
+                                field={field}
+                                label="Какой приём пищи для Вас самый важный по времени (не по меню)?"
+                                desc="Выберите самый важный для вас приём пищи"
+                                array={["Завтрак", "Обед", "Ужин"]}
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="important_meal_time"
+                        render={({ field }) => (
+                            <HourSelector
+                                value={field.value}
+                                onChange={field.onChange}
+                                label="Час приёма пищи"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="energy_decline"
+                        array={["Нет", "Почти нет", "Умеренный", "Да, сильный"]}
+                        render={({ field }) => (
+                            <FormRadioGroupStr
+                                field={field}
+                                label="Чувствуете ли Вы спад энергии после обеда?"
+                                desc="Выберите самый важный для вас приём пищи"
+                                array={["Нет", "Почти нет", "Умеренный", "Да, сильный"]}
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="early_rise"
+                        render={({ field }) => (
+                            <FormRadioGroupStr
+                                field={field}
+                                label="Можете ли Вы легко перейти на ранний подъём, если это необходимо?"
+                                array={["Да, без проблем", "Практически невозможно", "С трудом, но возможно"]}
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="daytime_sleep"
+                        render={({ field }) => (
+                            <FormRadioGroupStr
+                                field={field}
+                                label="Спите ли Вы днём или вечером?"
+                                array={["Часто, если это возможно", "Да, иногда", "Никогда"]}
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="state_morning"
+                        render={({ field }) => (
+                            <FormRadioGroupStr
+                                field={field}
+                                label="Каким Вы просыпаетесь утром?"
+                                array={["Свежим и бодрым", "В тумане, но постепенно «раскачиваюсь»", "Усталым, с тяжёлыми веками"]}
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="daily_routine"
+                        render={({ field }) => (
+                            <FormRadioGroupStr
+                                field={field}
+                                label="Какой режим дня для Вас наиболее комфортен?"
+                                array={["Ранний подъём и ранний отход ко сну", "Гибкий график с пиком активности днём", "Поздний подъём и работа/активность вечером"]}
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="when_tired"
+                        render={({ field }) => (
+                            <HourSelector
+                                value={field.value}
+                                onChange={field.onChange}
+                                label="Когда чаще всего ощущается усталость?"
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="me_desc"
+                        render={({ field }) => (
+                            <FormRadioGroupStr
+                                field={field}
+                                label="Какое утверждение лучше описывает Вас?"
+                                array={["«Я люблю начинать день с чёткого плана»", "«Мне нужно время, чтобы войти в ритм»", "«Я предпочитаю работать, когда все спят»"]}
+                            />
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="great_day_desc"
+                        render={({ field }) => (
+                            <FormInput
+                                label="Опишите Ваш идеальный день с точки зрения расписания"
+                                type="text"
+                                placeholder="Мой идеальный день:..."
+                                field={field}
+                                onChange={(e) => { field.onChange(e.target.value) }}
+                            />
+                        )}
+                    />
+                    <div className="w-full flex flex-col items-center gap-5 mt-12">
+                        <button
+                            type="submit"
+                            className="max-w-[200px] w-full p-[10px] rounded-2xl text-[18px] font-semibold bg-[#8A2BE2]"
+                            disabled={form.formState.isSubmitting}
+                        >
+                            Отправить
+                        </button>
+
+                        <button
+                            onClick={confirmDelete}
+                            type="button"
+                            className="max-w-[200px] w-full p-[10px] rounded-2xl text-[18px] font-semibold bg-[#FF0000]"
+                        >
+                            Удалить
+                        </button>
+                    </div>
+                </form>
+            </Form>
+        </div>
     )
 }
