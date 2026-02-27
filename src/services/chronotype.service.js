@@ -2,12 +2,16 @@ import axios from "axios";
 
 axios.defaults.withCredentials = true;
 
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL
+});
+
 class ChronotypeService {
     async refresh(refresh) {
         console.log("Refresh получил refresh: " + JSON.stringify(refresh))
         try {
             console.log("Refresh запрос начался")
-            const {data} = await axios.post('/api/auth/refresh', {}, {
+            const {data} = await api.post('/auth/refresh', {}, {
                 headers: {
                     'Authorization': `Bearer ${refresh}`
                 }
@@ -20,7 +24,7 @@ class ChronotypeService {
 
     async getChronotype(access_token, refresh_token, changeAccessToken) {
         try {
-            const { data } = await axios.get('/api/chronotype', {
+            const { data } = await api.get('/chronotype', {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -37,7 +41,7 @@ class ChronotypeService {
                     changeAccessToken(newToken.access_token);
                     console.log("Новый access токен: " + newToken.access_token)
 
-                    const { data } = await axios.get('/api/chronotype', {
+                    const { data } = await api.get('/chronotype', {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }

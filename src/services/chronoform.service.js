@@ -2,12 +2,16 @@ import axios from "axios";
 
 axios.defaults.withCredentials = true;
 
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL
+});
+
 class CFService {
     async refresh(refresh) {
         console.log("Refresh получил refresh: " + JSON.stringify(refresh))
         try {
             console.log("Refresh запрос начался")
-            const {data} = await axios.post('/api/auth/refresh', {}, {
+            const {data} = await api.post('/auth/refresh', {}, {
                 headers: {
                     'Authorization': `Bearer ${refresh}`
                 }
@@ -25,7 +29,7 @@ class CFService {
     ) {
         console.log("getCF начался");
         try {
-            const { data } = await axios.get(`/api/chronoform/chronoform`, {
+            const { data } = await api.get(`/chronoform/chronoform`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -42,7 +46,7 @@ class CFService {
                     changeAccessToken(newToken.access_token);
                     console.log("Новый access токен: " + newToken.access_token)
 
-                    const {data} = await axios.get('/api/auth/profile', {
+                    const {data} = await api.get('/auth/profile', {
                         headers: {
                             'Authorization': `Bearer ${newToken.access_token}`
                         }
@@ -66,7 +70,7 @@ class CFService {
     ) {
         console.log("updateCF начался");
         try {
-            const { data } = await axios.post(`/api/chronoform/update`, dto, {
+            const { data } = await api.post(`/chronoform/update`, dto, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -84,7 +88,7 @@ class CFService {
                     changeAccessToken(newToken.access_token);
                     console.log("Новый access токен: " + newToken.access_token)
 
-                    const { data } = await axios.post(`/api/chronoform/update`, dto, {
+                    const { data } = await api.post(`/chronoform/update`, dto, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }
@@ -111,7 +115,7 @@ class CFService {
     ) {
         console.log("deleteCF начался");
         try {
-            const request = await axios.delete(`/api/chronoform/delete`, {
+            const request = await api.delete(`/chronoform/delete`, {
                 headers: {
                     'Authorization': `Bearer ${access_token}`
                 }
@@ -130,7 +134,7 @@ class CFService {
                     changeAccessToken(newToken.access_token);
                     console.log("Новый access токен: " + newToken.access_token)
 
-                    const request = await axios.delete(`/api/chronoform/delete`, {
+                    const request = await api.delete(`/chronoform/delete`, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }
